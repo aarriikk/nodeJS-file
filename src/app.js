@@ -1,10 +1,9 @@
 import express from 'express';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { connect, set } from 'mongoose';
 import morgan from 'morgan';
 import helmet from 'helmet';
-import { NODE_ENV, PORT, ORIGIN, CREDENTIALS } from './config/index.js';
+import { NODE_ENV, PORT } from './config/index.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 import { dbConnection } from './utils/db.util.js';
 
@@ -42,7 +41,6 @@ export class App {
 
   initializeMiddlewares() {
     this.app.use(morgan('dev'));
-    this.app.use(cors({ origin: ORIGIN, credentials: CREDENTIALS }));
     this.app.use(helmet());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));

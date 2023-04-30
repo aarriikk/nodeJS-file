@@ -2,6 +2,10 @@ import { Schema, model } from 'mongoose';
 
 const raspiSchema = new Schema(
   {
+    machineId: {
+      type: Number,
+      required: true,
+    },
     realQuantity: {
       type: Number,
       required: true,
