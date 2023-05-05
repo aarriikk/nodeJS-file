@@ -7,6 +7,7 @@ export class AuthController {
   signUp = async (req, res, next) => {
     try {
       const { email, password } = req.body;
+      console.log(email, password);
       const userData = { email, password };
       const signUpUser = await this.auth.register(userData);
 

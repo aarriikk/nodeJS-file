@@ -53,6 +53,7 @@ export class CalculationService {
     const downTimeCost = (raspberry.downTime / cycleTime) * actualBEP;
 
     return {
+      machineId,
       realTime,
       cycleTime,
       optimalQty,
