@@ -13,11 +13,11 @@ export class AuthService {
     const findUser = await User.findOne({ email: userData.email })
       .select('+password')
       .exec();
-    if (!findUser) return createError(401, 'Wrong credentials!');
+    if (!findUser) throw createError(401, 'Wrong credentials!');
 
     // mengecek apakah password user betul, jika salah akan mereturn error
     const isMatch = await compare(userData.password, findUser.password);
-    if (!isMatch) return createError(401, 'Wrong credentials!');
+    if (!isMatch) throw createError(401, 'Wrong credentials!');
 
     // menggenerate token dengan email sebagai token data, dan akan expired dalam 1 hari
     const payload = {
@@ -30,7 +30,7 @@ export class AuthService {
 
   async register(userData) {
     const findUser = await User.findOne({ email: userData.email }).exec();
-    if (findUser) return createError(409, 'Email already exists');
+    if (findUser) throw createError(409, 'Email already exists');
 
     const newUser = await User.create(userData);
 

@@ -1,33 +1,71 @@
 import { Raspi } from '../models/raspi.model.js';
 import { Parameter } from '../models/parameter.model.js';
+import { createError } from '../utils/error.util.js';
 
 export class CalculationService {
-  async getRealTime(machineId) {
+  async getPdfData(machineId) {
     const parameter = await Parameter.findOne({ machineId }).exec();
-    const raspberry = await Raspi.findOne({});
-  }
+    const raspberry = await Raspi.findOne({ machineId }).exec();
 
-  async getCycleTime(realTime, realQuantity) {
-    return realTime / realQuantity;
-  }
+    if (!parameter || !raspberry)
+      throw createError(409, 'Machine does not exists');
 
-  async getOptimalQuantity(upTime, cycleTime) {
-    return upTime / cycleTime;
-  }
+    // uptime - downtime
+    const realTime = parameter.upTime - raspberry.downTime;
 
-  async getProductionRate(realQuantity, optimalQuanity) {
-    return (realQuantity / optimalQuanity) * 100;
-  }
+    const cycleTime = realTime / raspberry.realQuantity;
 
-  async getPercentageQuantity(realQuantity, targetQuantity) {
-    return (realQuantity / targetQuantity) * 100;
-  }
+    const optimalQty = parameter.upTime / cycleTime;
 
-  async getEnergyConsumption(kwh, realQuantity) {
-    return (kwh * 1114) / realQuantity;
-  }
+    const productionRate = (raspberry.realQuantity / optimalQty) * 100;
 
-  async getPercentageTime(realTime, upTime) {
-    return (realTime / upTime) * 100;
+    const percentageQty =
+      (raspberry.realQuantity / parameter.quantityTarget) * 100;
+
+    const energyConsumption =
+      (raspberry.kiloWattPerHour * 1114) / raspberry.realQuantity;
+
+    const percentageTime = (realTime / parameter.upTime) * 100;
+
+    const OEE = (raspberry.realQuantity * cycleTime) / parameter.upTime;
+
+    const rawMaterial =
+      (raspberry.realQuantity * parameter.rawMaterialGram) / 100;
+
+    const kwh = raspberry.kiloWattPerHour * 1114;
+
+    const rawMaterialCost = rawMaterial * parameter.rawMaterialPrice;
+
+    const actualBep =
+      kwh +
+      ((raspberry.realQuantity * parameter.rawMaterialGram) / 1000) *
+        parameter.rawMaterialPrice;
+
+    const actualBEP = actualBep / raspberry.realQuantity;
+
+    const optimalBep =
+      kwh +
+      ((optimalQty * parameter.rawMaterialGram) / 1000) *
+        parameter.rawMaterialPrice;
+
+    const optimalBEP = optimalBep / optimalQty;
+
+    const downTimeCost = (raspberry.downTime / cycleTime) * actualBEP;
+
+    return {
+      machineId,
+      realTime,
+      cycleTime,
+      optimalQty,
+      productionRate,
+      OEE,
+      percentageQty,
+      energyConsumption,
+      percentageTime,
+      rawMaterialCost,
+      actualBEP,
+      optimalBEP,
+      downTimeCost,
+    };
   }
 }

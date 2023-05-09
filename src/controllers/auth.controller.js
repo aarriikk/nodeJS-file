@@ -7,6 +7,7 @@ export class AuthController {
   signUp = async (req, res, next) => {
     try {
       const { email, password } = req.body;
+      console.log(email, password);
       const userData = { email, password };
       const signUpUser = await this.auth.register(userData);
 
@@ -29,10 +30,22 @@ export class AuthController {
       res.status(200).json({
         status: 'success',
         message: 'sign in',
-        data: {
-          user: findUser,
-          token: token,
-        },
+        data: { ...findUser, token },
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  getMe = async (req, res, next) => {
+    try {
+      const user = req.user;
+      if (!user) return res.status(403).json({ message: 'Unauthenticated' });
+
+      res.status(200).json({
+        status: 'success',
+        message: 'get user information',
+        data: user,
       });
     } catch (err) {
       next(err);
