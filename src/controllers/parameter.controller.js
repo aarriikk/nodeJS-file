@@ -39,7 +39,14 @@ export class ParameterController {
   // get semua data parameter
   getAllParam = async (req, res, next) => {
     try {
-      const params = await this.parameter.findAllParam();
+      const machineId = req.query.machineId;
+      let params;
+
+      if (machineId) {
+        params = await this.parameter.findAllParam(machineId);
+      } else {
+        params = await this.parameter.findAllParam();
+      }
 
       res.status(200).json({
         status: 'success',

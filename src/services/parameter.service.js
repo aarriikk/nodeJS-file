@@ -4,17 +4,18 @@ import { createError } from '../utils/error.util.js';
 export class ParameterService {
   // service untuk membuat document input parameter di mongo
   async createParameter(paramData) {
-    const findParam = await Parameter.findOne({
-      machineId: paramData?.machineId,
-    }).exec();
-    if (findParam) return createError(409, 'Machine already exists');
     const newParam = await Parameter.create(paramData);
     return newParam;
   }
 
   // me-return seluruh data parameter
-  async findAllParam() {
-    const params = await Parameter.find({}).exec();
+  async findAllParam(machineId) {
+    let params;
+    if (machineId) {
+      params = await Parameter.find({ machineId }).exec();
+    } else {
+      params = await Parameter.find({}).exec();
+    }
     return params;
   }
 
