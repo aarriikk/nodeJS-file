@@ -5,9 +5,9 @@ export class CalculationController {
 
   getDataPdf = async (req, res, next) => {
     try {
-      const { machineId } = req.query;
+      const { machineId, id } = req.query;
 
-      const dataPdf = await this.calculation.getPdfData(machineId);
+      const dataPdf = await this.calculation.getPdfData(machineId, id);
 
       res.status(200).json({
         status: 'success',

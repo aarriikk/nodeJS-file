@@ -3,8 +3,8 @@ import { Parameter } from '../models/parameter.model.js';
 import { createError } from '../utils/error.util.js';
 
 export class CalculationService {
-  async getPdfData(machineId) {
-    const parameter = await Parameter.findOne({ machineId }).exec();
+  async getPdfData(machineId, id) {
+    const parameter = await Parameter.findOne({ machineId, _id: id }).exec();
     const raspberry = await Raspi.findOne({ machineId }).exec();
 
     if (!parameter || !raspberry)
