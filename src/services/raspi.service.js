@@ -9,9 +9,16 @@ export class RaspiService {
   }
 
   // me-return seluruh data di raspi
-  async findAllRaspi() {
-    const raspiDatas = await Raspi.find().exec();
-    return raspiDatas;
+  async findAllRaspi(machineId) {
+    let raspi;
+
+    if (machineId) {
+      raspi = await Raspi.find({ machineId }).exec();
+    } else {
+      raspi = await Raspi.find().exec();
+    }
+
+    return raspi;
   }
 
   // me-return data raspi berdasarkan id

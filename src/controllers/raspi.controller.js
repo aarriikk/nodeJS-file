@@ -19,12 +19,19 @@ export class RaspiController {
 
   getAllRaspi = async (req, res, next) => {
     try {
-      const raspiDatas = await this.raspi.findAllRaspi();
+      const machineId = req.query.machineId;
+      let raspi;
+
+      if (machineId) {
+        raspi = await this.raspi.findAllRaspi(machineId);
+      } else {
+        raspi = await this.raspi.findAllRaspi();
+      }
 
       res.status(200).json({
         status: 'success',
         message: 'get all data raspi',
-        data: raspiDatas,
+        data: raspi,
       });
     } catch (err) {
       next(err);

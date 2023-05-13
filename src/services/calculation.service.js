@@ -4,8 +4,8 @@ import { createError } from '../utils/error.util.js';
 
 export class CalculationService {
   async getPdfData(machineId, id) {
-    const parameter = await Parameter.findOne({ machineId, _id: id }).exec();
-    const raspberry = await Raspi.findOne({ machineId }).exec();
+    const parameter = await Parameter.findOne({ machineId }).exec();
+    const raspberry = await Raspi.findOne({ machineId, _id: id }).exec();
 
     if (!parameter || !raspberry)
       throw createError(409, 'Machine does not exists');
