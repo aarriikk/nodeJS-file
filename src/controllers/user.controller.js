@@ -3,7 +3,6 @@ import { UserService } from '../services/user.service.js';
 export class UserController {
   user = new UserService();
 
-  // mencari seluruh user
   getAllUser = async (_req, res, next) => {
     try {
       const users = await this.user.findAllUser();
