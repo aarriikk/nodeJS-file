@@ -14,10 +14,6 @@ const raspiSchema = new Schema(
       type: Number,
       required: true,
     },
-    rawMaterialPrice: {
-      type: Number,
-      required: true,
-    },
     downTime: {
       type: Number,
       required: true,

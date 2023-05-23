@@ -9,10 +9,12 @@ export class RaspiService {
   }
 
   // me-return seluruh data di raspi
-  async findAllRaspi(machineId) {
+  async findAllRaspi(machineId, latest) {
     let raspi;
 
-    if (machineId) {
+    if (machineId && latest) {
+      raspi = await Raspi.find({ machineId }).sort({ createdAt: -1 }).exec();
+    } else if (machineId) {
       raspi = await Raspi.find({ machineId }).exec();
     } else {
       raspi = await Raspi.find().exec();
