@@ -1,11 +1,38 @@
+import { DownTime } from '../models/downTime.js';
+import { Energy } from '../models/energy.js';
+import { Quantity } from '../models/quantity.js';
 import { Raspi } from '../models/raspi.model.js';
 import { createError } from '../utils/error.util.js';
 
 export class RaspiService {
   // service untuk membuat document input raspberry di mongo
   async createRaspi(raspiData) {
-    const newRaspi = await Raspi.create(raspiData);
+    const energy = await Energy.find({}).sort({ _id: -1 }).exec();
+    const qty = await Quantity.find({}).sort({ _id: -1 }).exec();
+    const dt = await DownTime.find({}).sort({ _id: -1 }).exec();
+
+    const newRaspi = await Raspi.create({
+      machineId: raspiData,
+      kiloWattPerHour: energy[0].value,
+      realQuantity: qty[0].value,
+      downTime: dt[0].value,
+    });
     return newRaspi;
+  }
+
+  async createEnergy(raspiData) {
+    const newEnergy = await Energy.create(raspiData);
+    return newEnergy;
+  }
+
+  async createQty(raspiData) {
+    const newQty = await Quantity.create(raspiData);
+    return newQty;
+  }
+
+  async createDownTime(raspiData) {
+    const newDt = await DownTime.create(raspiData);
+    return newDt;
   }
 
   // me-return seluruh data di raspi
@@ -21,6 +48,21 @@ export class RaspiService {
     }
 
     return raspi;
+  }
+
+  async findAllEnergy() {
+    const energy = await Energy.find({}).exec();
+    return energy;
+  }
+
+  async findAllQty() {
+    const qty = await Quantity.find({}).exec();
+    return qty;
+  }
+
+  async findAllDt() {
+    const dt = await DownTime.find({}).exec();
+    return dt;
   }
 
   // me-return data raspi berdasarkan id
