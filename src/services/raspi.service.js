@@ -51,17 +51,17 @@ export class RaspiService {
   }
 
   async findAllEnergy() {
-    const energy = await Energy.find({}).exec();
+    const energy = await Energy.find({}).sort({ createdAt: -1 }).exec();
     return energy;
   }
 
   async findAllQty() {
-    const qty = await Quantity.find({}).exec();
+    const qty = await Quantity.find({}).sort({ createdAt: -1 }).exec();
     return qty;
   }
 
   async findAllDt() {
-    const dt = await DownTime.find({}).exec();
+    const dt = await DownTime.find({}).sort({ createdAt: -1 }).exec();
     return dt;
   }
 
