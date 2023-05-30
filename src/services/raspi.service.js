@@ -1,3 +1,4 @@
+import { Counter } from '../models/counter.js';
 import { DownTime } from '../models/downTime.js';
 import { Energy } from '../models/energy.js';
 import { Quantity } from '../models/quantity.js';
@@ -9,7 +10,7 @@ export class RaspiService {
   async createRaspi(raspiData) {
     const energy = await Energy.find({}).sort({ _id: -1 }).exec();
     const qty = await Quantity.find({}).sort({ _id: -1 }).exec();
-    const dt = await DownTime.find({}).sort({ _id: -1 }).exec();
+    const dt = await Counter.find({}).sort({ _id: -1 }).exec();
 
     const newRaspi = await Raspi.create({
       machineId: raspiData,
@@ -19,7 +20,8 @@ export class RaspiService {
     });
 
     await Quantity.create({ value: 0 });
-    await DownTime.create({ value: 0 });
+    await DownTime.create({ value: dt[0].value });
+    await Counter.create({ value: 0 });
 
     return newRaspi;
   }
@@ -35,8 +37,14 @@ export class RaspiService {
   }
 
   async createDownTime(raspiData) {
-    const newDt = await DownTime.create(raspiData);
-    return newDt;
+    const lastCounter = await Counter.find().sort({ _id: -1 }).exec();
+    let counter;
+    if (raspiData.value === 0) {
+      counter = await Counter.create({
+        value: lastCounter.length ? lastCounter[0].value + 1 : 1,
+      });
+    }
+    return counter;
   }
 
   // me-return seluruh data di raspi
@@ -65,7 +73,7 @@ export class RaspiService {
   }
 
   async findAllDt() {
-    const dt = await DownTime.find({}).sort({ createdAt: -1 }).exec();
+    const dt = await Counter.find({}).sort({ createdAt: -1 }).exec();
     return dt;
   }
 

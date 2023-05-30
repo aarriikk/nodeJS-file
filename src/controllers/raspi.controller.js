@@ -37,7 +37,7 @@ export class RaspiController {
 
       res.status(201).json({
         status: 'success',
-        message: 'create energy',
+        message: 'create qty',
         data: newQty,
       });
     } catch (err) {
@@ -51,7 +51,7 @@ export class RaspiController {
 
       res.status(201).json({
         status: 'success',
-        message: 'create energy',
+        message: 'create dt',
         data: newDt,
       });
     } catch (err) {
@@ -101,7 +101,7 @@ export class RaspiController {
 
       res.status(200).json({
         status: 'success',
-        message: 'get all data energy',
+        message: 'get all data qty',
         data: qty,
       });
     } catch (err) {
@@ -115,7 +115,7 @@ export class RaspiController {
 
       res.status(200).json({
         status: 'success',
-        message: 'get all data energy',
+        message: 'get all data dt',
         data: dt,
       });
     } catch (err) {
