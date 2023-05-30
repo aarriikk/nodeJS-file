@@ -17,6 +17,10 @@ export class RaspiService {
       realQuantity: qty[0].value,
       downTime: dt[0].value,
     });
+
+    await Quantity.create({ value: 0 });
+    await DownTime.create({ value: 0 });
+
     return newRaspi;
   }
 
