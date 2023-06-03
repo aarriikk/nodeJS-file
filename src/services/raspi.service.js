@@ -62,7 +62,7 @@ export class RaspiService {
     if (!findDownTime) {
       findDownTime = await DownTime.create({
         machine_id: raspiData.machine_id,
-        value: 1,
+        value: 0,
       });
     }
 
