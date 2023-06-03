@@ -58,7 +58,7 @@ export class RaspiService {
     const lastCounter = await Counter.findOne({
       machine_id: raspiData.machine_id,
     }).exec();
-    if (raspiData.value === 0) {
+    if (raspiData.value === 1) {
       if (!lastCounter) {
         await Counter.create({
           value: 1,
