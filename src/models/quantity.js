@@ -6,6 +6,10 @@ const quantitySchema = new Schema(
       type: Number,
       required: true,
     },
+    machine_id: {
+      type: Number,
+      required: true,
+    },
   },
   { timestamps: true }
 );

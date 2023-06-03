@@ -5,7 +5,7 @@ export class RaspiController {
 
   createRaspi = async (req, res, next) => {
     try {
-      const newRaspi = await this.raspi.createRaspi(req.body.machineId);
+      const newRaspi = await this.raspi.createRaspi(req.body.machine_id);
 
       res.status(201).json({
         status: 'success',
@@ -97,7 +97,13 @@ export class RaspiController {
 
   getAllQty = async (req, res, next) => {
     try {
-      const qty = await this.raspi.findAllQty();
+      const machineId = req.query.machineId;
+      let qty;
+      if (machineId) {
+        qty = await this.raspi.findByMachineIdQty(machineId);
+      } else {
+        qty = await this.raspi.findAllQty();
+      }
 
       res.status(200).json({
         status: 'success',
@@ -111,7 +117,13 @@ export class RaspiController {
 
   getAllDt = async (req, res, next) => {
     try {
-      const dt = await this.raspi.findAllDt();
+      const machineId = req.query.machineId;
+      let dt;
+      if (machineId) {
+        dt = await this.raspi.findByMachineIdDt(machineId);
+      } else {
+        dt = await this.raspi.findAllDt();
+      }
 
       res.status(200).json({
         status: 'success',

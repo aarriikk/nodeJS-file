@@ -9,19 +9,19 @@ export class RaspiService {
   // service untuk membuat document input raspberry di mongo
   async createRaspi(raspiData) {
     const energy = await Energy.find({}).sort({ _id: -1 }).exec();
-    const qty = await Quantity.find({}).sort({ _id: -1 }).exec();
-    const dt = await Counter.find({}).sort({ _id: -1 }).exec();
+    const qty = await Quantity.findOne({ machine_id: raspiData }).exec();
+    const dt = await Counter.findOne({ machine_id: raspiData }).exec();
 
     const newRaspi = await Raspi.create({
       machineId: raspiData,
       kiloWattPerHour: energy[0].value,
-      realQuantity: qty[0].value,
-      downTime: dt[0].value,
+      realQuantity: qty.value,
+      downTime: dt.value,
     });
 
-    await Quantity.create({ value: 0 });
-    await DownTime.create({ value: dt[0].value });
-    await Counter.create({ value: 0 });
+    await Quantity.updateOne({ machine_id: raspiData }, { value: 0 });
+    await DownTime.create({ value: dt.value, machine_id: raspiData });
+    await Counter.updateOne({ machine_id: raspiData }, { value: 0 });
 
     return newRaspi;
   }
@@ -32,19 +32,50 @@ export class RaspiService {
   }
 
   async createQty(raspiData) {
-    const newQty = await Quantity.create(raspiData);
+    const lastCounter = await Quantity.findOne({
+      machine_id: raspiData.machine_id,
+    }).exec();
+    let newQty;
+    if (lastCounter) {
+      await Quantity.updateOne(
+        { machine_id: raspiData.machine_id },
+        { value: lastCounter.value + 1 },
+        { new: true }
+      );
+      newQty = await Quantity.findOne({
+        machine_id: raspiData.machine_id,
+      }).exec();
+    } else {
+      newQty = await Quantity.create({
+        value: 1,
+        machine_id: raspiData.machine_id,
+      });
+    }
     return newQty;
   }
 
   async createDownTime(raspiData) {
-    const lastCounter = await Counter.find().sort({ _id: -1 }).exec();
-    let counter;
+    const lastCounter = await Counter.findOne({
+      machine_id: raspiData.machine_id,
+    }).exec();
     if (raspiData.value === 0) {
-      counter = await Counter.create({
-        value: lastCounter.length ? lastCounter[0].value + 1 : 1,
-      });
+      if (!lastCounter) {
+        await Counter.create({
+          value: 1,
+          machine_id: raspiData.machine_id,
+        });
+      } else {
+        await Counter.updateOne(
+          { machine_id: raspiData.machine_id },
+          {
+            value: lastCounter ? lastCounter.value + 1 : 1,
+            machine_id: raspiData.machine_id,
+          },
+          { new: true }
+        );
+      }
     }
-    return counter;
+    return lastCounter;
   }
 
   // me-return seluruh data di raspi
@@ -77,10 +108,22 @@ export class RaspiService {
     return dt;
   }
 
+  async findByMachineIdQty(machineId) {
+    const qty = await Quantity.findOne({ machine_id: machineId }).exec();
+    if (!qty) throw createError(409, 'Data does not exists');
+    return qty;
+  }
+
+  async findByMachineIdDt(machineId) {
+    const dt = await DownTime.findOne({ machine_id: machineId }).exec();
+    if (!dt) throw createError(409, 'Data does not exists');
+    return dt;
+  }
+
   // me-return data raspi berdasarkan id
   async findByIdRaspi(id) {
     const findRaspi = await Raspi.findById(id).lean();
-    if (!findRaspi) return createError(409, 'Raspi does not exists');
+    if (!findRaspi) throw createError(409, 'Raspi does not exists');
     return findRaspi;
   }
 
@@ -89,14 +132,14 @@ export class RaspiService {
     const updatedRaspi = await Raspi.findByIdAndUpdate(id, raspiData, {
       new: true,
     });
-    if (!updatedRaspi) return createError(409, 'Raspi does not exists');
+    if (!updatedRaspi) throw createError(409, 'Raspi does not exists');
     return updatedRaspi;
   }
 
   // delete data raspi berdasarkan id
   async deleteByIdRaspi(id) {
     const deletedRaspi = await Raspi.findByIdAndDelete(id);
-    if (!deletedRaspi) return createError(409, 'Raspi does not exists');
+    if (!deletedRaspi) throw createError(409, 'Raspi does not exists');
     return deletedRaspi;
   }
 }
