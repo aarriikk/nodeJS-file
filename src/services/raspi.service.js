@@ -1,16 +1,17 @@
-import { Counter } from '../models/counter.js';
 import { DownTime } from '../models/downTime.js';
 import { Energy } from '../models/energy.js';
 import { Quantity } from '../models/quantity.js';
 import { Raspi } from '../models/raspi.model.js';
 import { createError } from '../utils/error.util.js';
 
+let downTimeStartTime = null;
+
 export class RaspiService {
   // service untuk membuat document input raspberry di mongo
   async createRaspi(raspiData) {
     const energy = await Energy.find({}).sort({ _id: -1 }).exec();
     const qty = await Quantity.findOne({ machine_id: raspiData }).exec();
-    const dt = await Counter.findOne({ machine_id: raspiData }).exec();
+    const dt = await DownTime.findOne({ machine_id: raspiData }).exec();
 
     const newRaspi = await Raspi.create({
       machineId: raspiData,
@@ -20,8 +21,7 @@ export class RaspiService {
     });
 
     await Quantity.updateOne({ machine_id: raspiData }, { value: 0 });
-    await DownTime.create({ value: dt.value, machine_id: raspiData });
-    await Counter.updateOne({ machine_id: raspiData }, { value: 0 });
+    await DownTime.updateOne({ machine_id: raspiData }, { value: 0 });
 
     return newRaspi;
   }
@@ -55,27 +55,32 @@ export class RaspiService {
   }
 
   async createDownTime(raspiData) {
-    const lastCounter = await Counter.findOne({
+    let findDownTime = await DownTime.findOne({
       machine_id: raspiData.machine_id,
     }).exec();
-    if (raspiData.value === 1) {
-      if (!lastCounter) {
-        await Counter.create({
-          value: 1,
-          machine_id: raspiData.machine_id,
-        });
-      } else {
-        await Counter.updateOne(
-          { machine_id: raspiData.machine_id },
-          {
-            value: lastCounter ? lastCounter.value + 1 : 1,
-            machine_id: raspiData.machine_id,
-          },
-          { new: true }
-        );
+
+    if (!findDownTime) {
+      findDownTime = await DownTime.create({
+        machine_id: raspiData.machine_id,
+        value: 1,
+      });
+    }
+
+    if (raspiData.value === 0) {
+      if (downTimeStartTime === null) {
+        downTimeStartTime = Date.now();
+      }
+    } else if (raspiData.value === 1) {
+      if (downTimeStartTime !== null) {
+        const downTimeDuration = Date.now() - downTimeStartTime;
+        findDownTime.value += Math.floor(downTimeDuration / 1000);
+        downTimeStartTime = null;
       }
     }
-    return lastCounter;
+
+    await findDownTime.save();
+
+    return findDownTime.value;
   }
 
   // me-return seluruh data di raspi
@@ -94,17 +99,17 @@ export class RaspiService {
   }
 
   async findAllEnergy() {
-    const energy = await Energy.find({}).sort({ createdAt: -1 }).exec();
+    const energy = await Energy.find({}).exec();
     return energy;
   }
 
   async findAllQty() {
-    const qty = await Quantity.find({}).sort({ createdAt: -1 }).exec();
+    const qty = await Quantity.find({}).exec();
     return qty;
   }
 
   async findAllDt() {
-    const dt = await Counter.find({}).sort({ createdAt: -1 }).exec();
+    const dt = await DownTime.find({}).exec();
     return dt;
   }
 
