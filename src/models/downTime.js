@@ -10,6 +10,10 @@ const downTimeSchema = new Schema(
       type: Number,
       required: true,
     },
+    downTimeStartTime: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

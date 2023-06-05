@@ -4,8 +4,6 @@ import { Quantity } from '../models/quantity.js';
 import { Raspi } from '../models/raspi.model.js';
 import { createError } from '../utils/error.util.js';
 
-let downTimeStartTime = null;
-
 export class RaspiService {
   // service untuk membuat document input raspberry di mongo
   async createRaspi(raspiData) {
@@ -67,14 +65,14 @@ export class RaspiService {
     }
 
     if (raspiData.value === 0) {
-      if (downTimeStartTime === null) {
-        downTimeStartTime = Date.now();
+      if (findDownTime.downTimeStartTime === null) {
+        findDownTime.downTimeStartTime = Date.now();
       }
     } else if (raspiData.value === 1) {
-      if (downTimeStartTime !== null) {
-        const downTimeDuration = Date.now() - downTimeStartTime;
+      if (findDownTime.downTimeStartTime !== null) {
+        const downTimeDuration = Date.now() - findDownTime.downTimeStartTime;
         findDownTime.value += Math.floor(downTimeDuration / 1000);
-        downTimeStartTime = null;
+        findDownTime.downTimeStartTime = null;
       }
     }
 
