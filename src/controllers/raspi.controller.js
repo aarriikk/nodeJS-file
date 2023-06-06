@@ -62,11 +62,10 @@ export class RaspiController {
   getAllRaspi = async (req, res, next) => {
     try {
       const machineId = req.query.machineId;
-      const latest = req.query.latest;
       let raspi;
 
-      if (machineId && latest) {
-        raspi = await this.raspi.findAllRaspi(machineId, latest);
+      if (machineId) {
+        raspi = await this.raspi.findAllRaspi(machineId);
       } else {
         raspi = await this.raspi.findAllRaspi();
       }
