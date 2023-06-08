@@ -14,22 +14,21 @@ export class RaspiService {
       .sort({ _id: -1 })
       .exec();
 
-    const downTimeDuration = Date.now() - dt.downTimeStartTime;
     let newRaspi;
 
     if (lastEnergy.length) {
       newRaspi = await Raspi.create({
         machineId: raspiData,
-        kiloWattPerHour: lastEnergy[0].kiloWattPerHour - energy[0].value,
+        kiloWattPerHour: energy[0].value - lastEnergy[0].kiloWattPerHour,
         realQuantity: qty.value,
-        downTime: Math.floor(downTimeDuration / 1000),
+        downTime: dt.value,
       });
     } else {
       newRaspi = await Raspi.create({
         machineId: raspiData,
         kiloWattPerHour: energy[0].value,
         realQuantity: qty.value,
-        downTime: Math.floor(downTimeDuration / 1000),
+        downTime: dt.value,
       });
     }
 
