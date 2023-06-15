@@ -46,8 +46,6 @@ export class RaspiService {
   }
 
   async createEnergy(raspiData) {
-    const findEnergy = await Energy.findOne({ value: raspiData }).exec();
-    if (findEnergy) throw createError(409, 'input value same');
     const newEnergy = await Energy.create(raspiData);
     return newEnergy;
   }
