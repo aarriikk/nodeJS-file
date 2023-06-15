@@ -1,5 +1,6 @@
 import { DownTime } from '../models/downTime.js';
 import { Energy } from '../models/energy.js';
+import { Kwh } from '../models/kwh.js';
 import { Quantity } from '../models/quantity.js';
 import { Raspi } from '../models/raspi.model.js';
 import { createError } from '../utils/error.util.js';
@@ -10,6 +11,12 @@ export class RaspiService {
     const energy = await Energy.find({}).sort({ _id: -1 }).exec();
     const qty = await Quantity.findOne({ machine_id: raspiData }).exec();
     const dt = await DownTime.findOne({ machine_id: raspiData }).exec();
+
+    if (energy.length > 1) {
+      await Kwh.create({
+        value: energy[0].value - energy[1].value,
+      });
+    }
 
     let newRaspi;
 
@@ -39,6 +46,8 @@ export class RaspiService {
   }
 
   async createEnergy(raspiData) {
+    const findEnergy = await Energy.findOne({ value: raspiData }).exec();
+    if (findEnergy) throw createError(409, 'input value same');
     const newEnergy = await Energy.create(raspiData);
     return newEnergy;
   }
