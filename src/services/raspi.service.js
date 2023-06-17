@@ -11,19 +11,14 @@ export class RaspiService {
     const energy = await Energy.find({}).sort({ _id: -1 }).exec();
     const qty = await Quantity.findOne({ machine_id: raspiData }).exec();
     const dt = await DownTime.findOne({ machine_id: raspiData }).exec();
-
-    if (energy.length > 1) {
-      await Kwh.create({
-        value: energy[0].value - energy[1].value,
-      });
-    }
+    const kwh = await Kwh.find({}).sort({ _id: -1 }).exec();
 
     let newRaspi;
 
     if (energy.length > 1) {
       newRaspi = await Raspi.create({
         machineId: raspiData,
-        kiloWattPerHour: energy[0].value - energy[1].value,
+        kiloWattPerHour: energy[0].value - kwh[0].value,
         realQuantity: qty.value,
         downTime: dt.value,
       });
@@ -33,6 +28,12 @@ export class RaspiService {
         kiloWattPerHour: energy[0].value,
         realQuantity: qty.value,
         downTime: dt.value,
+      });
+    }
+
+    if (energy.length) {
+      await Kwh.create({
+        value: energy[0].value,
       });
     }
 
