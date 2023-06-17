@@ -15,6 +15,12 @@ export class RaspiService {
 
     let newRaspi;
 
+    if (energy.length) {
+      await Kwh.create({
+        value: energy[0].value - energy[1].value,
+      });
+    }
+
     if (energy.length > 1) {
       newRaspi = await Raspi.create({
         machineId: raspiData,
@@ -28,12 +34,6 @@ export class RaspiService {
         kiloWattPerHour: energy[0].value,
         realQuantity: qty.value,
         downTime: dt.value,
-      });
-    }
-
-    if (energy.length) {
-      await Kwh.create({
-        value: energy[0].value,
       });
     }
 
