@@ -27,6 +27,7 @@ export class RaspiRoutes {
       .route(`${this.path}/dt`)
       .post(this.raspi.createDt)
       .get(this.raspi.getAllDt);
+    this.router.get(`${this.path}/kwh`, this.raspi.getAllKwh);
     this.router
       .route(`${this.path}/:id`)
       .put(this.raspi.updatedByIdRaspi)

@@ -80,6 +80,20 @@ export class RaspiController {
     }
   };
 
+  getAllKwh = async (req, res, next) => {
+    try {
+      const kwh = await this.raspi.findAllKwh();
+
+      res.status(200).json({
+        status: 'success',
+        message: 'get all data kwh',
+        data: kwh,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   getAllEnergy = async (req, res, next) => {
     try {
       const energy = await this.raspi.findAllEnergy();
