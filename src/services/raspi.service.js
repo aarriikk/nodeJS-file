@@ -22,6 +22,17 @@ export class RaspiService {
         realQuantity: qty.value,
         downTime: dt.value,
       });
+      if (raspiData !== 1) {
+        const findRaspi = await Raspi.findOne({ machineId: 1 }).exec();
+        if (findRaspi) {
+          newRaspi = await Raspi.create({
+            machineId: raspiData,
+            kiloWattPerHour: findRaspi.kiloWattPerHour,
+            realQuantity: qty.value,
+            downTime: dt.value,
+          });
+        }
+      }
       await Kwh.create({
         value: energy[0].value,
       });
