@@ -16,14 +16,10 @@ export class RaspiService {
     let newRaspi;
 
     if (energy.length && kwh.length) {
-      newRaspi = await Raspi.create({
-        machineId: raspiData,
-        kiloWattPerHour: energy[0].value - kwh[0].value,
-        realQuantity: qty.value,
-        downTime: dt.value,
-      });
       if (raspiData !== 1) {
-        const findRaspi = await Raspi.findOne({ machineId: 1 }).exec();
+        const findRaspi = await Raspi.findOne({ machineId: 1 })
+          .sort({ _id: -1 })
+          .exec();
         if (findRaspi) {
           newRaspi = await Raspi.create({
             machineId: raspiData,
@@ -32,6 +28,13 @@ export class RaspiService {
             downTime: dt.value,
           });
         }
+      } else {
+        newRaspi = await Raspi.create({
+          machineId: raspiData,
+          kiloWattPerHour: energy[0].value - kwh[0].value,
+          realQuantity: qty.value,
+          downTime: dt.value,
+        });
       }
       await Kwh.create({
         value: energy[0].value,
